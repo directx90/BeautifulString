@@ -35,7 +35,15 @@ int main()
         if (length > 0)
         {
             int begin = 0;
-            while (begin + 3 <= length)
+            while (begin <= length - 6)
+            {
+                if (aabbcc(inputLine, begin, length, beautifulString))
+                    save(outputLine, beautifulString, lineNum, &finded);
+                begin += strlen(beautifulString);
+            }
+
+            begin = 0;
+            while (begin <= length - 3)
             {
                 if (abc(inputLine, begin, length, beautifulString))
                     save(outputLine, beautifulString, lineNum, &finded);
@@ -43,20 +51,24 @@ int main()
             }
 
             begin = 0;
-            while (begin + 6 <= length)
+            while (begin <= length - 3)
             {
-                if (aabbccdd(inputLine, begin, length, beautifulString))
+                if (bbb(inputLine, begin, length, beautifulString))
                     save(outputLine, beautifulString, lineNum, &finded);
                 begin += strlen(beautifulString);
             }
 
             begin = 0;
+            while (begin <= length - 6)
+            {
+                if (acacac(inputLine, begin, length, beautifulString))
+                    save(outputLine, beautifulString, lineNum, &finded);
+                begin += strlen(beautifulString);
+            }
         }
         if (finded)
         {
-            sprintf(outputLine, "%s", outputLine);
-            printf("%s", outputLine);
-
+            strcat(outputLine, "\n");
             fputs(outputLine, outputFp);
             memset(outputLine, 0, outputLength);
         }
@@ -74,65 +86,122 @@ int abc(char *input, int begin, int length, char *beautifulString)
     for (int i = begin; i < length; i++)
     {
         char c = input[i];
-        if (index > 0)
-        {
-            if (c - beautifulString[index - 1] != 1)
-                break;
-        }
+        if (index > 0 && c - beautifulString[index - 1] != 1)
+            break;
         beautifulString[index++] = c;
     }
     beautifulString[index] = '\0';
-    return index >= 3 ? 1 : 0;
+    return index >= 3;
 }
 
-int aabbccdd(char *input, int begin, int length, char *beautifulString)
+int aabbcc(char *input, int begin, int length, char *beautifulString)
 {
-    int index, preCount curCount = 0;
-    char finded = 1;
+    int index = 0;
+    int preCount = 0;
+    int curCount = 0;
+    char finded = 0;
     for (int i = begin; i < length; i++)
     {
         char c = input[i];
         if (index == 0)
         {
-            beautifulStrings[index++] = c;
-             preCount++;
+            beautifulString[index++] = c;
             curCount++;
         }
         else if (index == 1)
         {
             int delta = c - beautifulString[index - 1];
             if (delta != 0)
-            {
-                finded = 0
                 break;
-            }
-             beautifulStrings[index++] =c;
-             preCount++;
+            beautifulString[index++] = c;
             curCount++;
         }
         else
         {
-            if (index > 0)
+            int delta = c - beautifulString[index - 1];
+            if (delta == 0)
             {
-                int delta = c - beautifulString[index - 1];
-                if (delta == 0)
+                beautifulString[index++] = c;
+                curCount++;
+                if (0 < preCount && preCount < curCount)
                 {
-                }
-                else if (delta == 1)
-                {
-                }
-                else
-                {
+                    index--;
                     break;
                 }
+            }
+            else if (delta == 1)
+            {
+                beautifulString[index++] = c;
+                if (curCount < preCount)
+                {
+                    if (preCount + curCount == index - 1)
+                    {
+                        for (int j = curCount; j < index; j++)
+                            beautifulString[j] = beautifulString[j + 1];
+                        index -= preCount - curCount;
+                    }
+                    else
+                    {
+                        index -= curCount + 1;
+                        if (index < preCount * 3)
+                            index -= preCount;
+                        break;
+                    }
+                }
+                preCount = curCount;
+                curCount = 1;
+            }
+            else
+            {
+                if (preCount && curCount != preCount)
+                    index -= curCount;
+                break;
             }
         }
     }
     beautifulString[index] = '\0';
-    return finded;
+    return preCount && index >= preCount * 3;
 }
-void bbbb() {}
-void acacac() {}
+
+int bbb(char *input, int begin, int length, char *beautifulString)
+{
+    int index = 0;
+    for (int i = begin; i < length; i++)
+    {
+        char c = input[i];
+        if (index > 0 && c - beautifulString[index - 1] != 0)
+            break;
+        beautifulString[index++] = c;
+    }
+    beautifulString[index] = '\0';
+    return index >= 3;
+}
+
+int acacac(char *input, int begin, int length, char *beautifulString)
+{
+    int index = 0;
+    for (int i = begin; i < length; i++)
+    {
+        char c = input[i];
+        if (index == 1)
+        {
+            if (c - beautifulString[0] == 0)
+                break;
+        }
+        else if (index > 1)
+        {
+            if (c != beautifulString[index % 2])
+            {
+                if (index < 6 || !(index % 2))
+                    index--;
+                break;
+            }
+        }
+        beautifulString[index++] = c;
+    }
+    beautifulString[index] = '\0';
+    return index >= 6;
+}
 
 void save(char *outputLine, char *beautifulString, int lineNum, char *finded)
 {
